@@ -5,6 +5,8 @@ on:
     branches:
       - main
       - release-*
+    tags:
+      - 'v*'
   pull_request: {}
   workflow_dispatch: {}
 
@@ -17,7 +19,7 @@ env:
   GOLANGCI_VERSION: 'v2.12.1'
   DOCKER_BUILDX_VERSION: 'v0.34.1'
   UPBOUND_MARKETPLACE_PUSH_ROBOT_USR: ${{ secrets.UPBOUND_MARKETPLACE_PUSH_ROBOT_USR }}
-  GHCR_PUBLISH_ENABLED: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+  PUBLISH_ENABLED: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') }}
 
 jobs:
   detect-noop:
@@ -260,7 +262,7 @@ jobs:
           install: true
 
       - name: Login to GitHub Container Registry
-        if: env.GHCR_PUBLISH_ENABLED == 'true'
+        if: env.PUBLISH_ENABLED == 'true'
         uses: docker/login-action@65b78e6e13532edd9faf3aa588e940d9359d1a3a # v3
         with:
           registry: ghcr.io
@@ -268,7 +270,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Login to Upbound
-        if: env.UPBOUND_MARKETPLACE_PUSH_ROBOT_USR != ''
+        if: env.PUBLISH_ENABLED == 'true' && env.UPBOUND_MARKETPLACE_PUSH_ROBOT_USR != ''
         uses: docker/login-action@65b78e6e13532edd9faf3aa588e940d9359d1a3a # v3
         with:
           registry: xpkg.upbound.io
@@ -318,9 +320,9 @@ jobs:
           path: _output/**
 
       - name: Publish to GitHub Container Registry
-        if: env.GHCR_PUBLISH_ENABLED == 'true'
-        run: make publish BRANCH_NAME=${GITHUB_REF##*/} XPKG_REG_ORGS=ghcr.io/buttahtoast REGISTRY_ORGS=ghcr.io/buttahtoast
+        if: env.PUBLISH_ENABLED == 'true'
+        run: make publish BRANCH_NAME=${{ github.ref_name }} XPKG_REG_ORGS=ghcr.io/buttahtoast REGISTRY_ORGS=ghcr.io/buttahtoast
 
       - name: Publish to Upbound Marketplace
-        if: env.UPBOUND_MARKETPLACE_PUSH_ROBOT_USR != ''
-        run: make publish BRANCH_NAME=${GITHUB_REF##*/} XPKG_REG_ORGS=xpkg.upbound.io/buttahtoast REGISTRY_ORGS=xpkg.upbound.io/buttahtoast
+        if: env.PUBLISH_ENABLED == 'true' && env.UPBOUND_MARKETPLACE_PUSH_ROBOT_USR != ''
+        run: make publish BRANCH_NAME=${{ github.ref_name }} XPKG_REG_ORGS=xpkg.upbound.io/buttahtoast REGISTRY_ORGS=xpkg.upbound.io/buttahtoast

@@ -63,6 +63,9 @@ export CROSSPLANE_CLI_VERSION := $(CROSSPLANE_CLI_VERSION)
 # ====================================================================================
 # Setup Images
 
+# Only publish images and packages for version tags (e.g. v1.2.3).
+RELEASE_BRANCH_FILTER = v%
+
 REGISTRY_ORGS ?= ghcr.io/buttahtoast xpkg.upbound.io/buttahtoast
 IMAGES = $(PROJECT_NAME)
 -include build/makelib/imagelight.mk
