@@ -263,7 +263,7 @@ jobs:
 
       - name: Login to GitHub Container Registry
         if: env.PUBLISH_ENABLED == 'true'
-        uses: docker/login-action@65b78e6e13532edd9faf3aa588e940d9359d1a3a # v3
+        uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee # v4.2.0
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -271,7 +271,7 @@ jobs:
 
       - name: Login to Upbound
         if: env.PUBLISH_ENABLED == 'true' && env.UPBOUND_MARKETPLACE_PUSH_ROBOT_USR != ''
-        uses: docker/login-action@65b78e6e13532edd9faf3aa588e940d9359d1a3a # v3
+        uses: docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee # v4.2.0
         with:
           registry: xpkg.upbound.io
           username: ${{ secrets.UPBOUND_MARKETPLACE_PUSH_ROBOT_USR }}
