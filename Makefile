@@ -51,6 +51,7 @@ GO_SUBDIRS += cmd internal apis
 
 KIND_VERSION = v0.31.0
 UPTEST_VERSION = v2.2.0
+UPTEST_REPO = crossplane/uptest
 CRDDIFF_VERSION = v0.12.1
 CROSSPLANE_CLI_VERSION = v2.2.1
 CROSSPLANE_VERSION = 2.2.1
@@ -95,9 +96,9 @@ fallthrough: submodules
 # we ensure image is present in daemon.
 xpkg.build.provider-harbor: do.build.images
 
-# NOTE(hasheddan): we ensure up is installed prior to running platform-specific
-# build steps in parallel to avoid encountering an installation race condition.
-build.init: $(CROSSPLANE_CLI) $(UP)
+# NOTE(hasheddan): we ensure the Crossplane CLI is installed prior to running
+# platform-specific build steps in parallel to avoid installation races.
+build.init: $(CROSSPLANE_CLI)
 
 # ====================================================================================
 # Setup Terraform for fetching provider schema
@@ -180,9 +181,12 @@ ifeq ($(origin CROSSPLANE_CLI), undefined)
 CROSSPLANE_CLI := $(TOOLS_HOST_DIR)/crossplane-cli-$(CROSSPLANE_CLI_VERSION)
 endif
 
+# Crossplane v2 packages are built with the Crossplane CLI (crank), not up.
+UP := $(CROSSPLANE_CLI)
+
 $(CROSSPLANE_CLI):
 	@$(INFO) installing Crossplane CLI $(CROSSPLANE_CLI_VERSION)
-	@curl -fsSLo $(CROSSPLANE_CLI) --create-dirs https://releases.crossplane.io/stable/$(CROSSPLANE_CLI_VERSION)/bin/$(SAFEHOSTPLATFORM)/crank?source=build || $(FAIL)
+	@curl -fsSLo $(CROSSPLANE_CLI) --create-dirs https://releases.crossplane.io/stable/$(CROSSPLANE_CLI_VERSION)/bin/$(SAFEHOST_PLATFORM)/crank?source=build || $(FAIL)
 	@chmod +x $(CROSSPLANE_CLI)
 	@$(OK) installing Crossplane CLI $(CROSSPLANE_CLI_VERSION)
 
