@@ -245,13 +245,14 @@ e2e: local-deploy uptest
 
 crddiff: $(UPTEST)
 	@$(INFO) Checking breaking CRD schema changes
-	@for crd in $${MODIFIED_CRD_LIST}; do \
-		if ! git cat-file -e "$${GITHUB_BASE_REF}:$${crd}" 2>/dev/null; then \
-			echo "CRD $${crd} does not exist in the $${GITHUB_BASE_REF} branch. Skipping..." ; \
+	@BASE_REF="origin/$${GITHUB_BASE_REF}"; \
+	for crd in $${MODIFIED_CRD_LIST}; do \
+		if ! git cat-file -e "$${BASE_REF}:$${crd}" 2>/dev/null; then \
+			echo "CRD $${crd} does not exist in the $${BASE_REF} branch. Skipping..." ; \
 			continue ; \
 		fi ; \
 		echo "Checking $${crd} for breaking API changes..." ; \
-		changes_detected=$$($(UPTEST) crddiff revision <(git cat-file -p "$${GITHUB_BASE_REF}:$${crd}") "$${crd}" 2>&1) ; \
+		changes_detected=$$($(UPTEST) crddiff revision <(git cat-file -p "$${BASE_REF}:$${crd}") "$${crd}" 2>&1) ; \
 		if [[ $$? != 0 ]] ; then \
 			printf "\033[31m"; echo "Breaking change detected!"; printf "\033[0m" ; \
 			echo "$${changes_detected}" ; \
@@ -262,15 +263,20 @@ crddiff: $(UPTEST)
 
 schema-version-diff:
 	@$(INFO) Checking for native state schema version changes
-	@if ! git cat-file -e "${GITHUB_BASE_REF}:config/schema.json" 2>/dev/null; then \
+	@BASE_REF="origin/$${GITHUB_BASE_REF}"; \
+	if ! git cat-file -e "$${BASE_REF}:config/schema.json" 2>/dev/null; then \
 		echo "Base branch does not have config/schema.json. Skipping..."; \
 		exit 0; \
-	fi
-	@export PREV_PROVIDER_VERSION=$$(git cat-file -p "${GITHUB_BASE_REF}:Makefile" | sed -nr 's/^export[[:space:]]*TERRAFORM_PROVIDER_VERSION[[:space:]]*[\?:]?=[[:space:]]*(.+)/\1/p'); \
+	fi; \
+	PREV_PROVIDER_VERSION=$$(git cat-file -p "$${BASE_REF}:Makefile" | sed -nr 's/^export[[:space:]]*TERRAFORM_PROVIDER_VERSION[[:space:]]*[\?:]?=[[:space:]]*(.+)/\1/p'); \
+	if [ -z "$${PREV_PROVIDER_VERSION}" ]; then \
+		echo "Could not detect previous Terraform provider version. Skipping..."; \
+		exit 0; \
+	fi; \
 	echo Detected previous Terraform provider version: $${PREV_PROVIDER_VERSION}; \
 	echo Current Terraform provider version: $${TERRAFORM_PROVIDER_VERSION}; \
 	mkdir -p $(WORK_DIR); \
-	git cat-file -p "$${GITHUB_BASE_REF}:config/schema.json" > "$(WORK_DIR)/schema.json.$${PREV_PROVIDER_VERSION}"; \
+	git cat-file -p "$${BASE_REF}:config/schema.json" > "$(WORK_DIR)/schema.json.$${PREV_PROVIDER_VERSION}"; \
 	python3 scripts/version_diff.py config/generated.lst "$(WORK_DIR)/schema.json.$${PREV_PROVIDER_VERSION}" config/schema.json
 	@$(OK) Checking for native state schema version changes
 
