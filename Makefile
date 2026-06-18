@@ -2,13 +2,13 @@
 # Setup Project
 
 PROJECT_NAME ?= provider-harbor
-PROJECT_REPO ?= github.com/globallogicuki/$(PROJECT_NAME)
+PROJECT_REPO ?= github.com/buttahtoast/$(PROJECT_NAME)
 
 export TERRAFORM_VERSION ?= 1.10.5
 
 export TERRAFORM_PROVIDER_SOURCE ?= goharbor/harbor
 export TERRAFORM_PROVIDER_REPO ?= https://github.com/goharbor/terraform-provider-harbor
-export TERRAFORM_PROVIDER_VERSION ?= 3.11.2
+export TERRAFORM_PROVIDER_VERSION ?= 3.12.0
 export TERRAFORM_PROVIDER_DOWNLOAD_NAME ?= terraform-provider-harbor
 export TERRAFORM_PROVIDER_DOWNLOAD_URL_PREFIX ?= $(TERRAFORM_PROVIDER_REPO)/releases/download/v$(TERRAFORM_PROVIDER_VERSION)/
 export TERRAFORM_NATIVE_PROVIDER_BINARY ?= terraform-provider-harbor_v$(TERRAFORM_PROVIDER_VERSION)
@@ -39,8 +39,8 @@ NPROCS ?= 1
 # to half the number of CPU cores.
 GO_TEST_PARALLEL := $(shell echo $$(( $(NPROCS) / 2 )))
 
-GO_REQUIRED_VERSION ?= 1.19
-GOLANGCILINT_VERSION ?= 1.50.0
+GO_REQUIRED_VERSION ?= 1.24
+GOLANGCILINT_VERSION ?= 2.12.1
 GO_STATIC_PACKAGES = $(GO_PROJECT)/cmd/provider $(GO_PROJECT)/cmd/generator
 GO_LDFLAGS += -X $(GO_PROJECT)/internal/version.Version=$(VERSION)
 GO_SUBDIRS += cmd internal apis
@@ -49,26 +49,34 @@ GO_SUBDIRS += cmd internal apis
 # ====================================================================================
 # Setup Kubernetes tools
 
-KIND_VERSION = v0.15.0
-UP_VERSION = v0.28.0
-UP_CHANNEL = stable
-UPTEST_VERSION = v0.5.0
+KIND_VERSION = v0.31.0
+UPTEST_VERSION = v2.2.0
+CRDDIFF_VERSION = v0.12.1
+CROSSPLANE_CLI_VERSION = v2.2.1
+CROSSPLANE_VERSION = 2.2.1
+USE_HELM = true
+HELM_VERSION ?= v3.14.0
+
+export CROSSPLANE_CLI_VERSION := $(CROSSPLANE_CLI_VERSION)
 -include build/makelib/k8s_tools.mk
 
 # ====================================================================================
 # Setup Images
 
-REGISTRY_ORGS ?= xpkg.upbound.io/globallogicuki
+# Only publish images and packages for version tags (e.g. v1.2.3).
+RELEASE_BRANCH_FILTER = v%
+
+REGISTRY_ORGS ?= ghcr.io/buttahtoast xpkg.upbound.io/buttahtoast
 IMAGES = $(PROJECT_NAME)
 -include build/makelib/imagelight.mk
 
 # ====================================================================================
 # Setup XPKG
 
-XPKG_REG_ORGS ?= xpkg.upbound.io/globallogicuki
+XPKG_REG_ORGS ?= ghcr.io/buttahtoast xpkg.upbound.io/buttahtoast
 # NOTE(hasheddan): skip promoting on xpkg.upbound.io as channel tags are
 # inferred.
-XPKG_REG_ORGS_NO_PROMOTE ?= xpkg.upbound.io/globallogicuki
+XPKG_REG_ORGS_NO_PROMOTE ?= xpkg.upbound.io/buttahtoast
 XPKGS = $(PROJECT_NAME)
 -include build/makelib/xpkg.mk
 
@@ -86,13 +94,17 @@ fallthrough: submodules
 	@echo Initial setup complete. Running make again . . .
 	@make
 
-# NOTE(hasheddan): we force image building to happen prior to xpkg build so that
-# we ensure image is present in daemon.
-xpkg.build.provider-harbor: do.build.images
+# ====================================================================================
+# Setup goimports for upjet code generation
+GOIMPORTS_VERSION ?= v0.41.0
+GOIMPORTS := $(TOOLS_HOST_DIR)/goimports
 
-# NOTE(hasheddan): we ensure up is installed prior to running platform-specific
-# build steps in parallel to avoid encountering an installation race condition.
-build.init: $(UP)
+$(GOIMPORTS):
+	@$(INFO) installing goimports $(GOIMPORTS_VERSION)
+	@GOBIN=$(TOOLS_HOST_DIR) $(GO) install golang.org/x/tools/cmd/goimports@$(GOIMPORTS_VERSION)
+	@$(OK) installing goimports $(GOIMPORTS_VERSION)
+
+export PATH := $(TOOLS_HOST_DIR):$(PATH)
 
 # ====================================================================================
 # Setup Terraform for fetching provider schema
@@ -127,9 +139,9 @@ pull-docs:
 	fi
 	@git -C "$(WORK_DIR)/$(TERRAFORM_PROVIDER_SOURCE)" sparse-checkout set "$(TERRAFORM_DOCS_PATH)"
 
-generate.init: $(TERRAFORM_PROVIDER_SCHEMA) pull-docs
+generate.init: $(GOIMPORTS) $(TERRAFORM_PROVIDER_SCHEMA) pull-docs
 
-.PHONY: $(TERRAFORM_PROVIDER_SCHEMA) pull-docs
+.PHONY: $(GOIMPORTS) $(TERRAFORM_PROVIDER_SCHEMA) pull-docs
 # ====================================================================================
 # Targets
 
@@ -164,7 +176,9 @@ run: go.build
 
 # ====================================================================================
 # End to End Testing
-CROSSPLANE_NAMESPACE = upbound-system
+CROSSPLANE_NAMESPACE = crossplane-system
+KIND_CLUSTER_NAME ?= local-dev
+XPKG_SKIP_DEP_RESOLUTION := true
 -include build/makelib/local.xpkg.mk
 -include build/makelib/controlplane.mk
 
@@ -182,28 +196,29 @@ CROSSPLANE_NAMESPACE = upbound-system
 #   aws_secret_access_key = REDACTED'
 #   The associated `ProviderConfig`s will be named as `default` and `peer`.
 # - UPTEST_DATASOURCE_PATH (optional), see https://github.com/upbound/uptest#injecting-dynamic-values-and-datasource
-uptest: $(UPTEST) $(KUBECTL) $(KUTTL)
+uptest: $(UPTEST) $(KUBECTL) $(CHAINSAW) $(CROSSPLANE_CLI)
 	@$(INFO) running automated tests
-	@KUBECTL=$(KUBECTL) KUTTL=$(KUTTL) $(UPTEST) e2e "${UPTEST_EXAMPLE_LIST}" --data-source="${UPTEST_DATASOURCE_PATH}" --setup-script=cluster/test/setup.sh --default-conditions="Test" || $(FAIL)
+	@KUBECTL=$(KUBECTL) CHAINSAW=$(CHAINSAW) CROSSPLANE_CLI=$(CROSSPLANE_CLI) CROSSPLANE_NAMESPACE=$(CROSSPLANE_NAMESPACE) $(UPTEST) e2e "${UPTEST_EXAMPLE_LIST}" --data-source="${UPTEST_DATASOURCE_PATH}" --setup-script=cluster/test/setup.sh --default-conditions="Test" || $(FAIL)
 	@$(OK) running automated tests
 
 local-deploy: build controlplane.up local.xpkg.deploy.provider.$(PROJECT_NAME)
 	@$(INFO) running locally built provider
 	@$(KUBECTL) wait provider.pkg $(PROJECT_NAME) --for condition=Healthy --timeout 5m
-	@$(KUBECTL) -n upbound-system wait --for=condition=Available deployment --all --timeout=5m
+	@$(KUBECTL) -n crossplane-system wait --for=condition=Available deployment --all --timeout=5m
 	@$(OK) running locally built provider
 
 e2e: local-deploy uptest
 
 crddiff: $(UPTEST)
 	@$(INFO) Checking breaking CRD schema changes
-	@for crd in $${MODIFIED_CRD_LIST}; do \
-		if ! git cat-file -e "$${GITHUB_BASE_REF}:$${crd}" 2>/dev/null; then \
-			echo "CRD $${crd} does not exist in the $${GITHUB_BASE_REF} branch. Skipping..." ; \
+	@BASE_REF="origin/$${GITHUB_BASE_REF}"; \
+	for crd in $${MODIFIED_CRD_LIST}; do \
+		if ! git cat-file -e "$${BASE_REF}:$${crd}" 2>/dev/null; then \
+			echo "CRD $${crd} does not exist in the $${BASE_REF} branch. Skipping..." ; \
 			continue ; \
 		fi ; \
 		echo "Checking $${crd} for breaking API changes..." ; \
-		changes_detected=$$($(UPTEST) crddiff revision <(git cat-file -p "$${GITHUB_BASE_REF}:$${crd}") "$${crd}" 2>&1) ; \
+		changes_detected=$$($(UPTEST) crddiff revision <(git cat-file -p "$${BASE_REF}:$${crd}") "$${crd}" 2>&1) ; \
 		if [[ $$? != 0 ]] ; then \
 			printf "\033[31m"; echo "Breaking change detected!"; printf "\033[0m" ; \
 			echo "$${changes_detected}" ; \
@@ -214,12 +229,21 @@ crddiff: $(UPTEST)
 
 schema-version-diff:
 	@$(INFO) Checking for native state schema version changes
-	@export PREV_PROVIDER_VERSION=$$(git cat-file -p "${GITHUB_BASE_REF}:Makefile" | sed -nr 's/^export[[:space:]]*TERRAFORM_PROVIDER_VERSION[[:space:]]*:=[[:space:]]*(.+)/\1/p'); \
+	@BASE_REF="origin/$${GITHUB_BASE_REF}"; \
+	if ! git cat-file -e "$${BASE_REF}:config/schema.json" 2>/dev/null; then \
+		echo "Base branch does not have config/schema.json. Skipping..."; \
+		exit 0; \
+	fi; \
+	PREV_PROVIDER_VERSION=$$(git cat-file -p "$${BASE_REF}:Makefile" | sed -nr 's/^export[[:space:]]*TERRAFORM_PROVIDER_VERSION[[:space:]]*[\?:]?=[[:space:]]*(.+)/\1/p'); \
+	if [ -z "$${PREV_PROVIDER_VERSION}" ]; then \
+		echo "Could not detect previous Terraform provider version. Skipping..."; \
+		exit 0; \
+	fi; \
 	echo Detected previous Terraform provider version: $${PREV_PROVIDER_VERSION}; \
 	echo Current Terraform provider version: $${TERRAFORM_PROVIDER_VERSION}; \
 	mkdir -p $(WORK_DIR); \
-	git cat-file -p "$${GITHUB_BASE_REF}:config/schema.json" > "$(WORK_DIR)/schema.json.$${PREV_PROVIDER_VERSION}"; \
-	./scripts/version_diff.py config/generated.lst "$(WORK_DIR)/schema.json.$${PREV_PROVIDER_VERSION}" config/schema.json
+	git cat-file -p "$${BASE_REF}:config/schema.json" > "$(WORK_DIR)/schema.json.$${PREV_PROVIDER_VERSION}"; \
+	python3 scripts/version_diff.py config/generated.lst "$(WORK_DIR)/schema.json.$${PREV_PROVIDER_VERSION}" config/schema.json
 	@$(OK) Checking for native state schema version changes
 
 .PHONY: cobertura submodules fallthrough run crds.clean
