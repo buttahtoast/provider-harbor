@@ -98,7 +98,8 @@ spec:
                       (Default: false) Requires Harbor v2.15.1 or above.'
                     type: boolean
                   proxySpeedKb:
-                    description: 1)
+                    description: (Number) Proxy max speed in kilobytes per second.
+                      Negative one disables throttling.
                     type: number
                   public:
                     description: '(Boolean) The project will be public accessibility.(Default:
@@ -254,7 +255,8 @@ spec:
                       (Default: false) Requires Harbor v2.15.1 or above.'
                     type: boolean
                   proxySpeedKb:
-                    description: 1)
+                    description: (Number) Proxy max speed in kilobytes per second.
+                      Negative one disables throttling.
                     type: number
                   public:
                     description: '(Boolean) The project will be public accessibility.(Default:
@@ -471,7 +473,8 @@ spec:
                       (Default: false) Requires Harbor v2.15.1 or above.'
                     type: boolean
                   proxySpeedKb:
-                    description: 1)
+                    description: (Number) Proxy max speed in kilobytes per second.
+                      Negative one disables throttling.
                     type: number
                   public:
                     description: '(Boolean) The project will be public accessibility.(Default:

@@ -39,7 +39,7 @@ type ProjectInitParameters struct {
 	// (Boolean) When enabled, serve images from the local cache when they have been removed from the upstream registry. (Default: false) Requires Harbor v2.15.1 or above.
 	ProxyCacheLocalOnNotFound *bool `json:"proxyCacheLocalOnNotFound,omitempty" tf:"proxy_cache_local_on_not_found,omitempty"`
 
-	// 1)
+	// (Number) Proxy max speed in kilobytes per second. Negative one disables throttling.
 	ProxySpeedKb *float64 `json:"proxySpeedKb,omitempty" tf:"proxy_speed_kb,omitempty"`
 
 	// (Boolean) The project will be public accessibility.(Default: false)
@@ -100,7 +100,7 @@ type ProjectObservation struct {
 	// (Boolean) When enabled, serve images from the local cache when they have been removed from the upstream registry. (Default: false) Requires Harbor v2.15.1 or above.
 	ProxyCacheLocalOnNotFound *bool `json:"proxyCacheLocalOnNotFound,omitempty" tf:"proxy_cache_local_on_not_found,omitempty"`
 
-	// 1)
+	// (Number) Proxy max speed in kilobytes per second. Negative one disables throttling.
 	ProxySpeedKb *float64 `json:"proxySpeedKb,omitempty" tf:"proxy_speed_kb,omitempty"`
 
 	// (Boolean) The project will be public accessibility.(Default: false)
@@ -153,7 +153,7 @@ type ProjectParameters struct {
 	// +kubebuilder:validation:Optional
 	ProxyCacheLocalOnNotFound *bool `json:"proxyCacheLocalOnNotFound,omitempty" tf:"proxy_cache_local_on_not_found,omitempty"`
 
-	// 1)
+	// (Number) Proxy max speed in kilobytes per second. Negative one disables throttling.
 	// +kubebuilder:validation:Optional
 	ProxySpeedKb *float64 `json:"proxySpeedKb,omitempty" tf:"proxy_speed_kb,omitempty"`
 

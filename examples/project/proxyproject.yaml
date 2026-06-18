@@ -1,0 +1,21 @@
+apiVersion: project.buttah.cloud/v1alpha1
+kind: Project
+metadata:
+  name: proxy-cache
+spec:
+  forProvider:
+    name: proxy-cache
+    registryIdRef:
+      name: docker-hub
+    proxySpeedKb: -1
+    proxyCacheLocalOnNotFound: false
+---
+apiVersion: registry.buttah.cloud/v1alpha1
+kind: Registry
+metadata:
+  name: docker-hub
+spec:
+  forProvider:
+    endpointUrl: https://hub.docker.com
+    name: docker-hub
+    providerName: docker-hub
