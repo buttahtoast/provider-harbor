@@ -2,6 +2,7 @@ package replication
 
 import (
 	"github.com/crossplane/upjet/v2/pkg/config"
+
 	"github.com/buttahtoast/provider-harbor/config/common"
 )
 

@@ -7,12 +7,14 @@ package v1alpha1
 
 import (
 	"context"
-	v1alpha1 "github.com/buttahtoast/provider-harbor/apis/cluster/project/v1alpha1"
-	v1alpha11 "github.com/buttahtoast/provider-harbor/apis/cluster/registry/v1alpha1"
-	common "github.com/buttahtoast/provider-harbor/config/common"
+
 	reference "github.com/crossplane/crossplane-runtime/v2/pkg/reference"
 	errors "github.com/pkg/errors"
 	client "sigs.k8s.io/controller-runtime/pkg/client"
+
+	v1alpha1 "github.com/buttahtoast/provider-harbor/apis/cluster/project/v1alpha1"
+	v1alpha11 "github.com/buttahtoast/provider-harbor/apis/cluster/registry/v1alpha1"
+	common "github.com/buttahtoast/provider-harbor/config/common"
 )
 
 // ResolveReferences of this Replication.
