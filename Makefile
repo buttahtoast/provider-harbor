@@ -92,10 +92,6 @@ fallthrough: submodules
 	@echo Initial setup complete. Running make again . . .
 	@make
 
-# NOTE(hasheddan): we force image building to happen prior to xpkg build so that
-# we ensure image is present in daemon.
-xpkg.build.provider-harbor: do.build.images
-
 # NOTE(hasheddan): we ensure the Crossplane CLI is installed prior to running
 # platform-specific build steps in parallel to avoid installation races.
 build.init: $(CROSSPLANE_CLI)
@@ -189,6 +185,8 @@ $(CROSSPLANE_CLI):
 	@curl -fsSLo $(CROSSPLANE_CLI) --create-dirs https://releases.crossplane.io/stable/$(CROSSPLANE_CLI_VERSION)/bin/$(SAFEHOST_PLATFORM)/crank?source=build || $(FAIL)
 	@chmod +x $(CROSSPLANE_CLI)
 	@$(OK) installing Crossplane CLI $(CROSSPLANE_CLI_VERSION)
+
+-include makelib/crossplane_v2.mk
 
 # Install community Crossplane v2 (build submodule still targets UXP v1).
 controlplane.up: $(HELM3) $(KUBECTL) $(KIND)
