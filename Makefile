@@ -60,6 +60,10 @@ HELM_VERSION ?= v3.14.0
 export CROSSPLANE_CLI_VERSION := $(CROSSPLANE_CLI_VERSION)
 -include build/makelib/k8s_tools.mk
 
+# Pre-install crossplane-cli before parallel platform artifact builds to avoid
+# concurrent curl downloads racing on the same destination file.
+build.init: $(CROSSPLANE_CLI)
+
 # ====================================================================================
 # Setup Images
 
