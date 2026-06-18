@@ -54,6 +54,10 @@ UPTEST_VERSION = v2.2.0
 CRDDIFF_VERSION = v0.12.1
 CROSSPLANE_CLI_VERSION = v2.2.1
 CROSSPLANE_VERSION = 2.2.1
+USE_HELM3 = true
+HELM3_VERSION ?= v3.14.0
+
+export CROSSPLANE_CLI_VERSION := $(CROSSPLANE_CLI_VERSION)
 -include build/makelib/k8s_tools.mk
 
 # ====================================================================================
@@ -93,7 +97,7 @@ xpkg.build.provider-harbor: do.build.images
 
 # NOTE(hasheddan): we ensure up is installed prior to running platform-specific
 # build steps in parallel to avoid encountering an installation race condition.
-build.init: $(UP) $(CROSSPLANE_CLI)
+build.init: $(CROSSPLANE_CLI) $(UP)
 
 # ====================================================================================
 # Setup Terraform for fetching provider schema
@@ -166,8 +170,49 @@ run: go.build
 # ====================================================================================
 # End to End Testing
 CROSSPLANE_NAMESPACE = crossplane-system
+KIND_CLUSTER_NAME ?= local-dev
+XPKG_SKIP_DEP_RESOLUTION := true
 -include build/makelib/local.xpkg.mk
 -include build/makelib/controlplane.mk
+
+# Crossplane CLI is not available in the pinned build submodule.
+ifeq ($(origin CROSSPLANE_CLI), undefined)
+CROSSPLANE_CLI := $(TOOLS_HOST_DIR)/crossplane-cli-$(CROSSPLANE_CLI_VERSION)
+endif
+
+$(CROSSPLANE_CLI):
+	@$(INFO) installing Crossplane CLI $(CROSSPLANE_CLI_VERSION)
+	@curl -fsSLo $(CROSSPLANE_CLI) --create-dirs https://releases.crossplane.io/stable/$(CROSSPLANE_CLI_VERSION)/bin/$(SAFEHOSTPLATFORM)/crank?source=build || $(FAIL)
+	@chmod +x $(CROSSPLANE_CLI)
+	@$(OK) installing Crossplane CLI $(CROSSPLANE_CLI_VERSION)
+
+# Install community Crossplane v2 (build submodule still targets UXP v1).
+controlplane.up: $(HELM3) $(KUBECTL) $(KIND)
+	@$(INFO) setting up controlplane
+	@$(KIND) get kubeconfig --name $(KIND_CLUSTER_NAME) >/dev/null 2>&1 || $(KIND) create cluster --name=$(KIND_CLUSTER_NAME)
+	@$(INFO) setting kubectl context to kind-$(KIND_CLUSTER_NAME)
+	@$(KUBECTL) config use-context "kind-$(KIND_CLUSTER_NAME)"
+	@$(HELM3) repo add crossplane-stable https://charts.crossplane.io/stable 2>/dev/null || true
+	@$(HELM3) repo update crossplane-stable >/dev/null 2>&1
+	@if $(HELM3) list -n $(CROSSPLANE_NAMESPACE) 2>/dev/null | grep -q '^crossplane\s'; then \
+		$(INFO) crossplane already installed; \
+	else \
+		$(INFO) installing crossplane $(CROSSPLANE_VERSION); \
+		$(HELM3) install crossplane crossplane-stable/crossplane \
+			--namespace $(CROSSPLANE_NAMESPACE) \
+			--create-namespace \
+			--version $(CROSSPLANE_VERSION) \
+			--wait --timeout 5m; \
+	fi
+	@$(KUBECTL) -n $(CROSSPLANE_NAMESPACE) wait --for=condition=Available deployment --all --timeout=5m
+
+# Crossplane v2 removed ControllerConfig in favor of DeploymentRuntimeConfig.
+local.xpkg.deploy.provider.%: $(KIND) local.xpkg.sync
+	@$(INFO) deploying provider package $* $(VERSION)
+	@$(KIND) load docker-image $(BUILD_REGISTRY)/$*-$(ARCH) -n $(KIND_CLUSTER_NAME)
+	@echo '{"apiVersion":"pkg.crossplane.io/v1beta1","kind":"DeploymentRuntimeConfig","metadata":{"name":"runtimeconfig-$*"},"spec":{"deploymentTemplate":{"spec":{"selector":{},"strategy":{},"template":{"spec":{"containers":[{"args":["--debug"],"image":"$(BUILD_REGISTRY)/$*-$(ARCH)","name":"package-runtime"}]}}}}}}' | $(KUBECTL) apply -f -
+	@echo '{"apiVersion":"pkg.crossplane.io/v1","kind":"Provider","metadata":{"name":"$*"},"spec":{"package":"$*-$(VERSION).gz","skipDependencyResolution":$(XPKG_SKIP_DEP_RESOLUTION),"packagePullPolicy":"Never","runtimeConfigRef":{"name":"runtimeconfig-$*"}}}' | $(KUBECTL) apply -f -
+	@$(OK) deploying provider package $* $(VERSION)
 
 # This target requires the following environment variables to be set:
 # - UPTEST_EXAMPLE_LIST, a comma-separated list of examples to test
@@ -215,12 +260,16 @@ crddiff: $(UPTEST)
 
 schema-version-diff:
 	@$(INFO) Checking for native state schema version changes
-	@export PREV_PROVIDER_VERSION=$$(git cat-file -p "${GITHUB_BASE_REF}:Makefile" | sed -nr 's/^export[[:space:]]*TERRAFORM_PROVIDER_VERSION[[:space:]]*:=[[:space:]]*(.+)/\1/p'); \
+	@if ! git cat-file -e "${GITHUB_BASE_REF}:config/schema.json" 2>/dev/null; then \
+		echo "Base branch does not have config/schema.json. Skipping..."; \
+		exit 0; \
+	fi
+	@export PREV_PROVIDER_VERSION=$$(git cat-file -p "${GITHUB_BASE_REF}:Makefile" | sed -nr 's/^export[[:space:]]*TERRAFORM_PROVIDER_VERSION[[:space:]]*[\?:]?=[[:space:]]*(.+)/\1/p'); \
 	echo Detected previous Terraform provider version: $${PREV_PROVIDER_VERSION}; \
 	echo Current Terraform provider version: $${TERRAFORM_PROVIDER_VERSION}; \
 	mkdir -p $(WORK_DIR); \
 	git cat-file -p "$${GITHUB_BASE_REF}:config/schema.json" > "$(WORK_DIR)/schema.json.$${PREV_PROVIDER_VERSION}"; \
-	./scripts/version_diff.py config/generated.lst "$(WORK_DIR)/schema.json.$${PREV_PROVIDER_VERSION}" config/schema.json
+	python3 scripts/version_diff.py config/generated.lst "$(WORK_DIR)/schema.json.$${PREV_PROVIDER_VERSION}" config/schema.json
 	@$(OK) Checking for native state schema version changes
 
 .PHONY: cobertura submodules fallthrough run crds.clean
