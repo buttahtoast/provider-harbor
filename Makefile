@@ -92,6 +92,18 @@ fallthrough: submodules
 	@make
 
 # ====================================================================================
+# Setup goimports for upjet code generation
+GOIMPORTS_VERSION ?= v0.41.0
+GOIMPORTS := $(TOOLS_HOST_DIR)/goimports
+
+$(GOIMPORTS):
+	@$(INFO) installing goimports $(GOIMPORTS_VERSION)
+	@GOBIN=$(TOOLS_HOST_DIR) $(GO) install golang.org/x/tools/cmd/goimports@$(GOIMPORTS_VERSION)
+	@$(OK) installing goimports $(GOIMPORTS_VERSION)
+
+export PATH := $(TOOLS_HOST_DIR):$(PATH)
+
+# ====================================================================================
 # Setup Terraform for fetching provider schema
 TERRAFORM := $(TOOLS_HOST_DIR)/terraform-$(TERRAFORM_VERSION)
 TERRAFORM_WORKDIR := $(WORK_DIR)/terraform
@@ -124,9 +136,9 @@ pull-docs:
 	fi
 	@git -C "$(WORK_DIR)/$(TERRAFORM_PROVIDER_SOURCE)" sparse-checkout set "$(TERRAFORM_DOCS_PATH)"
 
-generate.init: $(TERRAFORM_PROVIDER_SCHEMA) pull-docs
+generate.init: $(GOIMPORTS) $(TERRAFORM_PROVIDER_SCHEMA) pull-docs
 
-.PHONY: $(TERRAFORM_PROVIDER_SCHEMA) pull-docs
+.PHONY: $(GOIMPORTS) $(TERRAFORM_PROVIDER_SCHEMA) pull-docs
 # ====================================================================================
 # Targets
 
