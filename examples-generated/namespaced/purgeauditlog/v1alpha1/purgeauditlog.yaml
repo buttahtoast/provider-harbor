@@ -1,4 +1,4 @@
-apiVersion: purgeauditlog.buttah.m.cloud/v1alpha1
+apiVersion: purgeauditlog.harbor.buttah.m.cloud/v1alpha1
 kind: PurgeAuditLog
 metadata:
   annotations:

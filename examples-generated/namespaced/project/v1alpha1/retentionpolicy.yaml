@@ -1,4 +1,4 @@
-apiVersion: project.buttah.m.cloud/v1alpha1
+apiVersion: project.harbor.buttah.m.cloud/v1alpha1
 kind: RetentionPolicy
 metadata:
   annotations:
@@ -23,7 +23,7 @@ spec:
 
 ---
 
-apiVersion: project.buttah.m.cloud/v1alpha1
+apiVersion: project.harbor.buttah.m.cloud/v1alpha1
 kind: Project
 metadata:
   annotations:

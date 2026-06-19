@@ -1,4 +1,4 @@
-apiVersion: interrogationservices.buttah.m.cloud/v1alpha1
+apiVersion: interrogationservices.harbor.buttah.m.cloud/v1alpha1
 kind: InterrogationServices
 metadata:
   annotations:

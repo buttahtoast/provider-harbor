@@ -1,4 +1,4 @@
-apiVersion: replication.buttah.m.cloud/v1alpha1
+apiVersion: replication.harbor.buttah.m.cloud/v1alpha1
 kind: Replication
 metadata:
   annotations:
@@ -17,7 +17,7 @@ spec:
 
 ---
 
-apiVersion: registry.buttah.m.cloud/v1alpha1
+apiVersion: registry.harbor.buttah.m.cloud/v1alpha1
 kind: Registry
 metadata:
   annotations:

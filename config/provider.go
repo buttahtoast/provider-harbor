@@ -71,7 +71,7 @@ func GetProvider() *ujconfig.Provider {
 		resourcePrefix,
 		modulePath,
 		[]byte(providerMetadata),
-		ujconfig.WithRootGroup("buttah.cloud"),
+		ujconfig.WithRootGroup("harbor.buttah.cloud"),
 		ujconfig.WithIncludeList(ExternalNameConfigured()),
 		ujconfig.WithFeaturesPackage("internal/features"),
 		ujconfig.WithDefaultResourceOptions(
@@ -115,7 +115,7 @@ func GetProviderNamespaced() *ujconfig.Provider {
 		resourcePrefix,
 		modulePath,
 		[]byte(providerMetadata),
-		ujconfig.WithRootGroup("buttah.m.cloud"),
+		ujconfig.WithRootGroup("harbor.buttah.m.cloud"),
 		ujconfig.WithIncludeList(ExternalNameConfigured()),
 		ujconfig.WithFeaturesPackage("internal/features"),
 		ujconfig.WithDefaultResourceOptions(

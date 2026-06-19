@@ -1,4 +1,4 @@
-apiVersion: tasks.buttah.m.cloud/v1alpha1
+apiVersion: tasks.harbor.buttah.m.cloud/v1alpha1
 kind: Task
 metadata:
   annotations:

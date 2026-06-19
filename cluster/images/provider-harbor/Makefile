@@ -25,7 +25,8 @@ img.build.shared:
 	@cp Dockerfile $(IMAGE_TEMP_DIR) || $(FAIL)
 	@cp terraformrc.hcl $(IMAGE_TEMP_DIR) || $(FAIL)
 	@cp -r $(OUTPUT_DIR)/bin/ $(IMAGE_TEMP_DIR)/bin || $(FAIL)
-	@docker buildx build $(BUILD_ARGS) \
+	@mkdir -p $(CACHE_DIR)
+	@flock $(CACHE_DIR)/docker-build.lock docker buildx build $(BUILD_ARGS) \
 		--platform $(IMAGE_PLATFORMS) \
 		--build-arg TERRAFORM_VERSION=$(TERRAFORM_VERSION) \
 		--build-arg TERRAFORM_PROVIDER_SOURCE=$(TERRAFORM_PROVIDER_SOURCE) \

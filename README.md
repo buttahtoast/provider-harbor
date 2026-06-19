@@ -9,8 +9,8 @@ for the [Harbor](https://goharbor.io/) API.
 This provider supports Crossplane v2 with both cluster-scoped and namespaced
 managed resources.
 
-- Cluster-scoped MRs use API group `buttah.cloud`
-- Namespaced MRs use API group `buttah.m.cloud`
+- Cluster-scoped MRs use API group `harbor.buttah.cloud`
+- Namespaced MRs use API group `harbor.buttah.m.cloud`
 
 Install the provider from the Upbound marketplace or GitHub Container Registry:
 ```
@@ -41,10 +41,10 @@ You can see the API reference [here](https://doc.crds.dev/github.com/buttahtoast
 ## Provider Config
 
 For namespaced managed resources, create a `ClusterProviderConfig` or
-namespace-scoped `ProviderConfig` in the `buttah.m.cloud` API group.
+namespace-scoped `ProviderConfig` in the `harbor.buttah.m.cloud` API group.
 
 For legacy cluster-scoped managed resources, use `ProviderConfig` in the
-`buttah.cloud` API group.
+`harbor.buttah.cloud` API group.
 
 Note that the ProviderConfig uses basic auth and requires a local user. A robot
 user can be used, but has restrictions around what can be created (e.g. a Robot

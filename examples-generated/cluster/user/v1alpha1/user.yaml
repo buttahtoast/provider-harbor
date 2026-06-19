@@ -1,4 +1,4 @@
-apiVersion: user.buttah.cloud/v1alpha1
+apiVersion: user.harbor.buttah.cloud/v1alpha1
 kind: User
 metadata:
   annotations:

@@ -1,4 +1,4 @@
-apiVersion: registry.buttah.m.cloud/v1alpha1
+apiVersion: registry.harbor.buttah.m.cloud/v1alpha1
 kind: Registry
 metadata:
   annotations:

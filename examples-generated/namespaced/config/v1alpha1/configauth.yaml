@@ -1,4 +1,4 @@
-apiVersion: config.buttah.m.cloud/v1alpha1
+apiVersion: config.harbor.buttah.m.cloud/v1alpha1
 kind: ConfigAuth
 metadata:
   annotations:

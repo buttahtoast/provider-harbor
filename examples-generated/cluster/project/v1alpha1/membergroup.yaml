@@ -1,4 +1,4 @@
-apiVersion: project.buttah.cloud/v1alpha1
+apiVersion: project.harbor.buttah.cloud/v1alpha1
 kind: MemberGroup
 metadata:
   annotations:
@@ -17,7 +17,7 @@ spec:
 
 ---
 
-apiVersion: project.buttah.cloud/v1alpha1
+apiVersion: project.harbor.buttah.cloud/v1alpha1
 kind: Project
 metadata:
   annotations:

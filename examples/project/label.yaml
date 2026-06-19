@@ -1,4 +1,4 @@
-apiVersion: label.buttah.cloud/v1alpha1
+apiVersion: label.harbor.buttah.cloud/v1alpha1
 kind: Label
 metadata:
   annotations:
@@ -15,7 +15,7 @@ spec:
       matchLabels:
         testing.upbound.io/example-name: main
 ---
-apiVersion: project.buttah.cloud/v1alpha1
+apiVersion: project.harbor.buttah.cloud/v1alpha1
 kind: Project
 metadata:
   annotations:

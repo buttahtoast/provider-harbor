@@ -62,7 +62,33 @@ export CROSSPLANE_CLI_VERSION := $(CROSSPLANE_CLI_VERSION)
 
 # Pre-install crossplane-cli before parallel platform artifact builds to avoid
 # concurrent curl downloads racing on the same destination file.
-build.init: $(CROSSPLANE_CLI)
+build.init: $(CROSSPLANE_CLI) build.check.docker
+
+# Platforms whose Docker images include RUN steps on a non-native architecture.
+CROSS_IMAGE_PLATFORMS := $(filter-out linux_$(SAFEHOSTARCH),$(filter linux_%,$(PLATFORMS)))
+
+.PHONY: build.setup.docker build.check.docker
+
+build.setup.docker:
+	@$(INFO) installing QEMU emulators for multi-platform Docker builds
+	@docker run --privileged --rm tonistiigi/binfmt --install all || $(FAIL)
+	@$(OK) QEMU emulators installed
+
+ifneq ($(CROSS_IMAGE_PLATFORMS),)
+build.check.docker:
+	@for arch in $(subst linux_,,$(CROSS_IMAGE_PLATFORMS)); do \
+		case "$$arch" in \
+			arm64)   test -f /proc/sys/fs/binfmt_misc/qemu-aarch64 ;; \
+			amd64)   test -f /proc/sys/fs/binfmt_misc/qemu-x86_64 ;; \
+			arm)     test -f /proc/sys/fs/binfmt_misc/qemu-arm ;; \
+		esac || { \
+			echo $(RED)Cross-platform Docker builds require QEMU. Run: make build.setup.docker$(CNone); \
+			false; \
+		}; \
+	done
+else
+build.check.docker: ; @:
+endif
 
 # ====================================================================================
 # Setup Images
@@ -83,6 +109,9 @@ XPKG_REG_ORGS ?= ghcr.io/buttahtoast xpkg.upbound.io/buttahtoast
 XPKG_REG_ORGS_NO_PROMOTE ?= xpkg.upbound.io/buttahtoast
 XPKGS = $(PROJECT_NAME)
 -include build/makelib/xpkg.mk
+
+# xpkg embeds the runtime image and must wait for the matching platform image.
+xpkg.build.$(PROJECT_NAME): do.build.image.$(PROJECT_NAME)
 
 # ====================================================================================
 # Fallthrough

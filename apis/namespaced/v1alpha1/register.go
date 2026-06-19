@@ -11,7 +11,7 @@ import (
 
 // Package type metadata.
 const (
-	Group   = "buttah.m.cloud"
+	Group   = "harbor.buttah.m.cloud"
 	Version = "v1alpha1"
 )
 

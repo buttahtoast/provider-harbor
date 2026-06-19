@@ -1,4 +1,4 @@
-apiVersion: label.buttah.m.cloud/v1alpha1
+apiVersion: label.harbor.buttah.m.cloud/v1alpha1
 kind: Label
 metadata:
   annotations:

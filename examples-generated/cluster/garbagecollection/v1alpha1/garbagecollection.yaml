@@ -1,4 +1,4 @@
-apiVersion: garbagecollection.buttah.cloud/v1alpha1
+apiVersion: garbagecollection.harbor.buttah.cloud/v1alpha1
 kind: GarbageCollection
 metadata:
   annotations:

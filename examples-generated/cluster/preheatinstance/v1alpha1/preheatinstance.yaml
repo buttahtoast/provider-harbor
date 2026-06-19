@@ -1,4 +1,4 @@
-apiVersion: preheatinstance.buttah.cloud/v1alpha1
+apiVersion: preheatinstance.harbor.buttah.cloud/v1alpha1
 kind: PreheatInstance
 metadata:
   annotations:

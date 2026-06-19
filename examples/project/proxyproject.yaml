@@ -1,4 +1,4 @@
-apiVersion: project.buttah.cloud/v1alpha1
+apiVersion: project.harbor.buttah.cloud/v1alpha1
 kind: Project
 metadata:
   name: proxy-cache
@@ -10,7 +10,7 @@ spec:
     proxySpeedKb: -1
     proxyCacheLocalOnNotFound: false
 ---
-apiVersion: registry.buttah.cloud/v1alpha1
+apiVersion: registry.harbor.buttah.cloud/v1alpha1
 kind: Registry
 metadata:
   name: docker-hub

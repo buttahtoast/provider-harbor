@@ -1,4 +1,4 @@
-apiVersion: group.buttah.cloud/v1alpha1
+apiVersion: group.harbor.buttah.cloud/v1alpha1
 kind: Group
 metadata:
   annotations:
