@@ -7,6 +7,8 @@ func Configure(p *config.Provider) {
 	p.AddResourceConfigurator("harbor_robot_account", func(r *config.Resource) {
 		r.ShortGroup = "robotaccount"
 		r.Kind = "RobotAccount"
+		// Upjet strips text before the first dash in argument docs.
+		r.MetaResource.ArgumentDocs["name"] = "- " + r.MetaResource.ArgumentDocs["name"]
 		r.References["permissions.namespace"] = config.Reference{
 			TerraformName: "harbor_project",
 			Extractor:     `github.com/crossplane/upjet/v2/pkg/resource.ExtractParamPath("name",true)`,

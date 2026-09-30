@@ -86,6 +86,10 @@ spec:
                           type: string
                       type: object
                     type: array
+                  disabledAuditLogEventTypes:
+                    description: 'separated list of audit event types to disable.
+                      When set, these events will not be logged. Example: "create_artifact,delete_artifact,pull_artifact"'
+                    type: string
                   notificationEnable:
                     description: level webhook policies are silently ignored. Defaults
                       to true.
@@ -109,11 +113,19 @@ spec:
                     description: (Boolean) Whether or not to skip update pull time
                       for scanner.
                     type: boolean
+                  sessionTimeout:
+                    description: (Number) The session timeout for Harbor UI, in minutes.
+                      Defaults to 60.
+                    type: number
                   skipAuditLogDatabase:
                     description: (Boolean) Whether or not to skip audit log database.
                     type: boolean
                   storagePerProject:
                     description: 1 (unlimited).
+                    type: number
+                  tokenExpiration:
+                    description: (Number) The expiration time of a token created by
+                      the token service, in minutes. Defaults to 30.
                     type: number
                 type: object
               initProvider:
@@ -157,6 +169,10 @@ spec:
                           type: string
                       type: object
                     type: array
+                  disabledAuditLogEventTypes:
+                    description: 'separated list of audit event types to disable.
+                      When set, these events will not be logged. Example: "create_artifact,delete_artifact,pull_artifact"'
+                    type: string
                   notificationEnable:
                     description: level webhook policies are silently ignored. Defaults
                       to true.
@@ -180,11 +196,19 @@ spec:
                     description: (Boolean) Whether or not to skip update pull time
                       for scanner.
                     type: boolean
+                  sessionTimeout:
+                    description: (Number) The session timeout for Harbor UI, in minutes.
+                      Defaults to 60.
+                    type: number
                   skipAuditLogDatabase:
                     description: (Boolean) Whether or not to skip audit log database.
                     type: boolean
                   storagePerProject:
                     description: 1 (unlimited).
+                    type: number
+                  tokenExpiration:
+                    description: (Number) The expiration time of a token created by
+                      the token service, in minutes. Defaults to 30.
                     type: number
                 type: object
               managementPolicies:
@@ -278,6 +302,10 @@ spec:
                           type: string
                       type: object
                     type: array
+                  disabledAuditLogEventTypes:
+                    description: 'separated list of audit event types to disable.
+                      When set, these events will not be logged. Example: "create_artifact,delete_artifact,pull_artifact"'
+                    type: string
                   id:
                     description: (String) The ID of this resource.
                     type: string
@@ -304,11 +332,19 @@ spec:
                     description: (Boolean) Whether or not to skip update pull time
                       for scanner.
                     type: boolean
+                  sessionTimeout:
+                    description: (Number) The session timeout for Harbor UI, in minutes.
+                      Defaults to 60.
+                    type: number
                   skipAuditLogDatabase:
                     description: (Boolean) Whether or not to skip audit log database.
                     type: boolean
                   storagePerProject:
                     description: 1 (unlimited).
+                    type: number
+                  tokenExpiration:
+                    description: (Number) The expiration time of a token created by
+                      the token service, in minutes. Defaults to 30.
                     type: number
                 type: object
               conditions:

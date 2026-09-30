@@ -8,8 +8,11 @@ metadata:
   name: main
 spec:
   forProvider:
+    disabledAuditLogEventTypes: create_artifact,delete_artifact
     notificationEnable: true
     projectCreationRestriction: adminonly
     robotNamePrefix: harbor@
     robotTokenExpiration: 30
+    sessionTimeout: 60
     storagePerProject: 100
+    tokenExpiration: 30

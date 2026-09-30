@@ -976,6 +976,11 @@ func (in *ConfigSystemInitParameters) DeepCopyInto(out *ConfigSystemInitParamete
 			(*in)[i].DeepCopyInto(&(*out)[i])
 		}
 	}
+	if in.DisabledAuditLogEventTypes != nil {
+		in, out := &in.DisabledAuditLogEventTypes, &out.DisabledAuditLogEventTypes
+		*out = new(string)
+		**out = **in
+	}
 	if in.NotificationEnable != nil {
 		in, out := &in.NotificationEnable, &out.NotificationEnable
 		*out = new(bool)
@@ -1006,6 +1011,11 @@ func (in *ConfigSystemInitParameters) DeepCopyInto(out *ConfigSystemInitParamete
 		*out = new(bool)
 		**out = **in
 	}
+	if in.SessionTimeout != nil {
+		in, out := &in.SessionTimeout, &out.SessionTimeout
+		*out = new(float64)
+		**out = **in
+	}
 	if in.SkipAuditLogDatabase != nil {
 		in, out := &in.SkipAuditLogDatabase, &out.SkipAuditLogDatabase
 		*out = new(bool)
@@ -1013,6 +1023,11 @@ func (in *ConfigSystemInitParameters) DeepCopyInto(out *ConfigSystemInitParamete
 	}
 	if in.StoragePerProject != nil {
 		in, out := &in.StoragePerProject, &out.StoragePerProject
+		*out = new(float64)
+		**out = **in
+	}
+	if in.TokenExpiration != nil {
+		in, out := &in.TokenExpiration, &out.TokenExpiration
 		*out = new(float64)
 		**out = **in
 	}
@@ -1075,6 +1090,11 @@ func (in *ConfigSystemObservation) DeepCopyInto(out *ConfigSystemObservation) {
 			(*in)[i].DeepCopyInto(&(*out)[i])
 		}
 	}
+	if in.DisabledAuditLogEventTypes != nil {
+		in, out := &in.DisabledAuditLogEventTypes, &out.DisabledAuditLogEventTypes
+		*out = new(string)
+		**out = **in
+	}
 	if in.ID != nil {
 		in, out := &in.ID, &out.ID
 		*out = new(string)
@@ -1110,6 +1130,11 @@ func (in *ConfigSystemObservation) DeepCopyInto(out *ConfigSystemObservation) {
 		*out = new(bool)
 		**out = **in
 	}
+	if in.SessionTimeout != nil {
+		in, out := &in.SessionTimeout, &out.SessionTimeout
+		*out = new(float64)
+		**out = **in
+	}
 	if in.SkipAuditLogDatabase != nil {
 		in, out := &in.SkipAuditLogDatabase, &out.SkipAuditLogDatabase
 		*out = new(bool)
@@ -1117,6 +1142,11 @@ func (in *ConfigSystemObservation) DeepCopyInto(out *ConfigSystemObservation) {
 	}
 	if in.StoragePerProject != nil {
 		in, out := &in.StoragePerProject, &out.StoragePerProject
+		*out = new(float64)
+		**out = **in
+	}
+	if in.TokenExpiration != nil {
+		in, out := &in.TokenExpiration, &out.TokenExpiration
 		*out = new(float64)
 		**out = **in
 	}
@@ -1146,6 +1176,11 @@ func (in *ConfigSystemParameters) DeepCopyInto(out *ConfigSystemParameters) {
 		for i := range *in {
 			(*in)[i].DeepCopyInto(&(*out)[i])
 		}
+	}
+	if in.DisabledAuditLogEventTypes != nil {
+		in, out := &in.DisabledAuditLogEventTypes, &out.DisabledAuditLogEventTypes
+		*out = new(string)
+		**out = **in
 	}
 	if in.NotificationEnable != nil {
 		in, out := &in.NotificationEnable, &out.NotificationEnable
@@ -1177,6 +1212,11 @@ func (in *ConfigSystemParameters) DeepCopyInto(out *ConfigSystemParameters) {
 		*out = new(bool)
 		**out = **in
 	}
+	if in.SessionTimeout != nil {
+		in, out := &in.SessionTimeout, &out.SessionTimeout
+		*out = new(float64)
+		**out = **in
+	}
 	if in.SkipAuditLogDatabase != nil {
 		in, out := &in.SkipAuditLogDatabase, &out.SkipAuditLogDatabase
 		*out = new(bool)
@@ -1184,6 +1224,11 @@ func (in *ConfigSystemParameters) DeepCopyInto(out *ConfigSystemParameters) {
 	}
 	if in.StoragePerProject != nil {
 		in, out := &in.StoragePerProject, &out.StoragePerProject
+		*out = new(float64)
+		**out = **in
+	}
+	if in.TokenExpiration != nil {
+		in, out := &in.TokenExpiration, &out.TokenExpiration
 		*out = new(float64)
 		**out = **in
 	}

@@ -59,15 +59,24 @@ spec:
               forProvider:
                 properties:
                   groupId:
-                    description: '(Number) The numeric identifier of the group type.
-                      Valid values are 1, 2, or 3 :'
+                    description: |-
+                      (Number) Numeric id of an existing Harbor usergroup. When set, the
+                      provider skips the name/DN lookup entirely and attaches the member by id.
                     type: number
                   groupName:
-                    description: (String) The name of the group member entity.
+                    description: |-
+                      (String) Name of the group member. For internal and oidc
+                      types this is the identifying name. For ldap it is populated from the
+                      backing usergroup after create/read and tracks whatever short name Harbor
+                      returns; a distinguished name supplied here is accepted for back-compat.
                     type: string
                   ldapGroupDn:
-                    description: (String) The distinguished name of the group within
-                      AD/LDAP.
+                    description: |-
+                      (String) Distinguished name of the LDAP group. Preferred
+                      input for type = "ldap". The provider resolves the DN against
+                      /usergroups, adopts an existing entry when present, and creates one when
+                      absent. The backing usergroup is never deleted on resource destroy, since it
+                      may be shared across projects.
                     type: string
                   projectId:
                     description: (String) The project id of the project that the entity
@@ -158,8 +167,8 @@ spec:
                       granted.
                     type: string
                   type:
-                    description: (String) The group type.  Can be set to "ldap", "internal"
-                      or "oidc".
+                    description: (String) The group type. Can be set to "ldap", "internal"
+                      or "oidc". Changing this forces a new resource.
                     type: string
                 type: object
               initProvider:
@@ -176,15 +185,24 @@ spec:
                   autoscaler.
                 properties:
                   groupId:
-                    description: '(Number) The numeric identifier of the group type.
-                      Valid values are 1, 2, or 3 :'
+                    description: |-
+                      (Number) Numeric id of an existing Harbor usergroup. When set, the
+                      provider skips the name/DN lookup entirely and attaches the member by id.
                     type: number
                   groupName:
-                    description: (String) The name of the group member entity.
+                    description: |-
+                      (String) Name of the group member. For internal and oidc
+                      types this is the identifying name. For ldap it is populated from the
+                      backing usergroup after create/read and tracks whatever short name Harbor
+                      returns; a distinguished name supplied here is accepted for back-compat.
                     type: string
                   ldapGroupDn:
-                    description: (String) The distinguished name of the group within
-                      AD/LDAP.
+                    description: |-
+                      (String) Distinguished name of the LDAP group. Preferred
+                      input for type = "ldap". The provider resolves the DN against
+                      /usergroups, adopts an existing entry when present, and creates one when
+                      absent. The backing usergroup is never deleted on resource destroy, since it
+                      may be shared across projects.
                     type: string
                   projectId:
                     description: (String) The project id of the project that the entity
@@ -275,8 +293,8 @@ spec:
                       granted.
                     type: string
                   type:
-                    description: (String) The group type.  Can be set to "ldap", "internal"
-                      or "oidc".
+                    description: (String) The group type. Can be set to "ldap", "internal"
+                      or "oidc". Changing this forces a new resource.
                     type: string
                 type: object
               managementPolicies:
@@ -352,21 +370,30 @@ spec:
               atProvider:
                 properties:
                   groupId:
-                    description: '(Number) The numeric identifier of the group type.
-                      Valid values are 1, 2, or 3 :'
+                    description: |-
+                      (Number) Numeric id of an existing Harbor usergroup. When set, the
+                      provider skips the name/DN lookup entirely and attaches the member by id.
                     type: number
                   groupName:
-                    description: (String) The name of the group member entity.
+                    description: |-
+                      (String) Name of the group member. For internal and oidc
+                      types this is the identifying name. For ldap it is populated from the
+                      backing usergroup after create/read and tracks whatever short name Harbor
+                      returns; a distinguished name supplied here is accepted for back-compat.
                     type: string
                   id:
                     description: (String) The ID of this resource.
                     type: string
                   ldapGroupDn:
-                    description: (String) The distinguished name of the group within
-                      AD/LDAP.
+                    description: |-
+                      (String) Distinguished name of the LDAP group. Preferred
+                      input for type = "ldap". The provider resolves the DN against
+                      /usergroups, adopts an existing entry when present, and creates one when
+                      absent. The backing usergroup is never deleted on resource destroy, since it
+                      may be shared across projects.
                     type: string
                   memberId:
-                    description: (Number)
+                    description: (Number) Numeric id of the project member.
                     type: number
                   projectId:
                     description: (String) The project id of the project that the entity
@@ -377,8 +404,8 @@ spec:
                       granted.
                     type: string
                   type:
-                    description: (String) The group type.  Can be set to "ldap", "internal"
-                      or "oidc".
+                    description: (String) The group type. Can be set to "ldap", "internal"
+                      or "oidc". Changing this forces a new resource.
                     type: string
                 type: object
               conditions:

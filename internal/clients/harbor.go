@@ -36,17 +36,19 @@ const (
 	bearerToken = "bearer_token"
 	sessionID   = "session_id"
 	insecure    = "insecure"
+	headers     = "headers"
 )
 
 type harborConfig struct {
-	URL         *string `json:"url,omitempty"`
-	Username    *string `json:"username,omitempty"`
-	Password    *string `json:"password,omitempty"`
-	RobotPrefix *string `json:"robot_prefix,omitempty"`
-	APIVersion  *int    `json:"api_version,omitempty"`
-	BearerToken *string `json:"bearer_token,omitempty"`
-	SessionID   *string `json:"session_id,omitempty"`
-	Insecure    *bool   `json:"insecure,omitempty"`
+	URL         *string           `json:"url,omitempty"`
+	Username    *string           `json:"username,omitempty"`
+	Password    *string           `json:"password,omitempty"`
+	RobotPrefix *string           `json:"robot_prefix,omitempty"`
+	APIVersion  *int              `json:"api_version,omitempty"`
+	BearerToken *string           `json:"bearer_token,omitempty"`
+	SessionID   *string           `json:"session_id,omitempty"`
+	Insecure    *bool             `json:"insecure,omitempty"`
+	Headers     map[string]string `json:"headers,omitempty"`
 }
 
 func terraformProviderConfigurationBuilder(creds harborConfig) terraform.ProviderConfiguration {
@@ -82,6 +84,10 @@ func terraformProviderConfigurationBuilder(creds harborConfig) terraform.Provide
 
 	if creds.Insecure != nil {
 		cnf[insecure] = *creds.Insecure
+	}
+
+	if creds.Headers != nil {
+		cnf[headers] = creds.Headers
 	}
 
 	return cnf

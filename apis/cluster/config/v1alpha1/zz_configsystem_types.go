@@ -80,6 +80,9 @@ type ConfigSystemInitParameters struct {
 	// (Block Set) (see below for nested schema)
 	BannerMessage []BannerMessageInitParameters `json:"bannerMessage,omitempty" tf:"banner_message,omitempty"`
 
+	// separated list of audit event types to disable. When set, these events will not be logged. Example: "create_artifact,delete_artifact,pull_artifact"
+	DisabledAuditLogEventTypes *string `json:"disabledAuditLogEventTypes,omitempty" tf:"disabled_audit_log_event_types,omitempty"`
+
 	// level webhook policies are silently ignored. Defaults to true.
 	NotificationEnable *bool `json:"notificationEnable,omitempty" tf:"notification_enable,omitempty"`
 
@@ -98,11 +101,17 @@ type ConfigSystemInitParameters struct {
 	// (Boolean) Whether or not to skip update pull time for scanner.
 	ScannerSkipUpdatePulltime *bool `json:"scannerSkipUpdatePulltime,omitempty" tf:"scanner_skip_update_pulltime,omitempty"`
 
+	// (Number) The session timeout for Harbor UI, in minutes. Defaults to 60.
+	SessionTimeout *float64 `json:"sessionTimeout,omitempty" tf:"session_timeout,omitempty"`
+
 	// (Boolean) Whether or not to skip audit log database.
 	SkipAuditLogDatabase *bool `json:"skipAuditLogDatabase,omitempty" tf:"skip_audit_log_database,omitempty"`
 
 	// 1 (unlimited).
 	StoragePerProject *float64 `json:"storagePerProject,omitempty" tf:"storage_per_project,omitempty"`
+
+	// (Number) The expiration time of a token created by the token service, in minutes. Defaults to 30.
+	TokenExpiration *float64 `json:"tokenExpiration,omitempty" tf:"token_expiration,omitempty"`
 }
 
 type ConfigSystemObservation struct {
@@ -112,6 +121,9 @@ type ConfigSystemObservation struct {
 
 	// (Block Set) (see below for nested schema)
 	BannerMessage []BannerMessageObservation `json:"bannerMessage,omitempty" tf:"banner_message,omitempty"`
+
+	// separated list of audit event types to disable. When set, these events will not be logged. Example: "create_artifact,delete_artifact,pull_artifact"
+	DisabledAuditLogEventTypes *string `json:"disabledAuditLogEventTypes,omitempty" tf:"disabled_audit_log_event_types,omitempty"`
 
 	// (String) The ID of this resource.
 	ID *string `json:"id,omitempty" tf:"id,omitempty"`
@@ -134,11 +146,17 @@ type ConfigSystemObservation struct {
 	// (Boolean) Whether or not to skip update pull time for scanner.
 	ScannerSkipUpdatePulltime *bool `json:"scannerSkipUpdatePulltime,omitempty" tf:"scanner_skip_update_pulltime,omitempty"`
 
+	// (Number) The session timeout for Harbor UI, in minutes. Defaults to 60.
+	SessionTimeout *float64 `json:"sessionTimeout,omitempty" tf:"session_timeout,omitempty"`
+
 	// (Boolean) Whether or not to skip audit log database.
 	SkipAuditLogDatabase *bool `json:"skipAuditLogDatabase,omitempty" tf:"skip_audit_log_database,omitempty"`
 
 	// 1 (unlimited).
 	StoragePerProject *float64 `json:"storagePerProject,omitempty" tf:"storage_per_project,omitempty"`
+
+	// (Number) The expiration time of a token created by the token service, in minutes. Defaults to 30.
+	TokenExpiration *float64 `json:"tokenExpiration,omitempty" tf:"token_expiration,omitempty"`
 }
 
 type ConfigSystemParameters struct {
@@ -150,6 +168,10 @@ type ConfigSystemParameters struct {
 	// (Block Set) (see below for nested schema)
 	// +kubebuilder:validation:Optional
 	BannerMessage []BannerMessageParameters `json:"bannerMessage,omitempty" tf:"banner_message,omitempty"`
+
+	// separated list of audit event types to disable. When set, these events will not be logged. Example: "create_artifact,delete_artifact,pull_artifact"
+	// +kubebuilder:validation:Optional
+	DisabledAuditLogEventTypes *string `json:"disabledAuditLogEventTypes,omitempty" tf:"disabled_audit_log_event_types,omitempty"`
 
 	// level webhook policies are silently ignored. Defaults to true.
 	// +kubebuilder:validation:Optional
@@ -175,6 +197,10 @@ type ConfigSystemParameters struct {
 	// +kubebuilder:validation:Optional
 	ScannerSkipUpdatePulltime *bool `json:"scannerSkipUpdatePulltime,omitempty" tf:"scanner_skip_update_pulltime,omitempty"`
 
+	// (Number) The session timeout for Harbor UI, in minutes. Defaults to 60.
+	// +kubebuilder:validation:Optional
+	SessionTimeout *float64 `json:"sessionTimeout,omitempty" tf:"session_timeout,omitempty"`
+
 	// (Boolean) Whether or not to skip audit log database.
 	// +kubebuilder:validation:Optional
 	SkipAuditLogDatabase *bool `json:"skipAuditLogDatabase,omitempty" tf:"skip_audit_log_database,omitempty"`
@@ -182,6 +208,10 @@ type ConfigSystemParameters struct {
 	// 1 (unlimited).
 	// +kubebuilder:validation:Optional
 	StoragePerProject *float64 `json:"storagePerProject,omitempty" tf:"storage_per_project,omitempty"`
+
+	// (Number) The expiration time of a token created by the token service, in minutes. Defaults to 30.
+	// +kubebuilder:validation:Optional
+	TokenExpiration *float64 `json:"tokenExpiration,omitempty" tf:"token_expiration,omitempty"`
 }
 
 // ConfigSystemSpec defines the desired state of ConfigSystem

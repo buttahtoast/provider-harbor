@@ -4,6 +4,8 @@
 is built using [Upjet](https://github.com/crossplane/upjet) and exposes XRM-conformant managed resources 
 for the [Harbor](https://goharbor.io/) API.
 
+The provider bundles [goharbor/harbor v3.12.5](https://github.com/goharbor/terraform-provider-harbor/releases/tag/v3.12.5).
+
 ## Getting Started
 
 This provider supports Crossplane v2 with both cluster-scoped and namespaced
@@ -49,6 +51,43 @@ For legacy cluster-scoped managed resources, use `ProviderConfig` in the
 Note that the ProviderConfig uses basic auth and requires a local user. A robot
 user can be used, but has restrictions around what can be created (e.g. a Robot
 cannot create other Robots).
+
+To pass custom HTTP headers to Harbor, add an optional `headers` map to the
+credentials JSON in the referenced Secret, for example:
+
+```json
+{
+  "url": "https://harbor.example.com",
+  "username": "admin",
+  "password": "replace-me",
+  "headers": {
+    "X-Proxy-Token": "replace-me"
+  }
+}
+```
+
+These headers are sent on every API request and overwrite existing headers with
+the same name. A `Host` entry overrides the request host. This works with both
+cluster-scoped and namespaced provider configurations.
+
+## Upgrading from Terraform provider 3.12.0
+
+Both resource scopes now expose `disabledAuditLogEventTypes`, `sessionTimeout`
+(minutes), and `tokenExpiration` (minutes) on `ConfigSystem`.
+
+The upstream provider now validates that each `RetentionPolicy` rule specifies
+exactly one retention criterion (`alwaysRetain: true`, `mostRecentlyPulled`,
+`mostRecentlyPushed`, `nDaysSinceLastPull`, or `nDaysSinceLastPush`), exactly one
+repository selector (`repoMatching` or `repoExcluding`), and exactly one tag
+selector (`tagMatching` or `tagExcluding`). Numeric criteria must be nonzero and
+selectors must be nonempty. Review existing rules before upgrading; invalid
+rules will fail reconciliation. The included retention-policy examples already
+satisfy these requirements.
+
+For LDAP `MemberGroup` resources, use `ldapGroupDn` for the distinguished name.
+An existing Harbor usergroup can also be selected with `groupId`. The upstream
+provider resolves or creates the backing LDAP usergroup and retains it when the
+project membership is deleted.
 
 ## Local Development & Testing
 

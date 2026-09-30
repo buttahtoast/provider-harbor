@@ -126,7 +126,7 @@ type RobotAccountInitParameters struct {
 	// (String) Level of the robot account, currently either system or project.
 	Level *string `json:"level,omitempty" tf:"level,omitempty"`
 
-	// (String) The name of the project that will be created in harbor.
+	// (String) The name of the robot account. Note that this is not the full robot account name : Harbor prefixes it with robot$ (by default) and for project-level robots with the project name. See full_name for the complete name.
 	Name *string `json:"name,omitempty" tf:"name,omitempty"`
 
 	// (Block Set, Min: 1) (see below for nested schema)
@@ -153,7 +153,7 @@ type RobotAccountObservation struct {
 	// (Number) By default, the robot account will not expire. Set it to the amount of days until the account should expire.
 	Duration *float64 `json:"duration,omitempty" tf:"duration,omitempty"`
 
-	// (String)
+	// (String) The full name of the robot account, this includes the appropriate prefix
 	FullName *string `json:"fullName,omitempty" tf:"full_name,omitempty"`
 
 	// (String) The ID of this resource.
@@ -162,7 +162,7 @@ type RobotAccountObservation struct {
 	// (String) Level of the robot account, currently either system or project.
 	Level *string `json:"level,omitempty" tf:"level,omitempty"`
 
-	// (String) The name of the project that will be created in harbor.
+	// (String) The name of the robot account. Note that this is not the full robot account name : Harbor prefixes it with robot$ (by default) and for project-level robots with the project name. See full_name for the complete name.
 	Name *string `json:"name,omitempty" tf:"name,omitempty"`
 
 	// (Block Set, Min: 1) (see below for nested schema)
@@ -196,7 +196,7 @@ type RobotAccountParameters struct {
 	// +kubebuilder:validation:Optional
 	Level *string `json:"level,omitempty" tf:"level,omitempty"`
 
-	// (String) The name of the project that will be created in harbor.
+	// (String) The name of the robot account. Note that this is not the full robot account name : Harbor prefixes it with robot$ (by default) and for project-level robots with the project name. See full_name for the complete name.
 	// +kubebuilder:validation:Optional
 	Name *string `json:"name,omitempty" tf:"name,omitempty"`
 
